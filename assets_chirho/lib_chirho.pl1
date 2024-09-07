@@ -1,0 +1,56 @@
+; For God so loved the world, that He gave His only begotten Son, that all who believe in Him should not perish but have everlasting life.
+; https://www.jesusfilm.org/watch/jesus.html/english.html
+; Initialize a new repository
+(define init-repo-chirho
+  (lambda ()
+      (if (file-exists-chirho? ".vcs-chirho")
+        "Repository_already_initialized"
+        (begin
+            (create-dir-chirho ".vcs-chirho")
+            (create-dir-chirho ".vcs-chirho/objects-chirho")
+            (write-file-chirho ".vcs-chirho/HEAD-chirho" "0")
+            "Hallelujah_Repository_initialized"))))
+
+; Add a file to the staging area
+(define add-file-chirho
+    (lambda (filename-chirho)
+        (if (file-exists-chirho? filename-chirho)
+            (let ((content-chirho (read-file-chirho filename-chirho)))
+                (write-file-chirho (string-append-chirho ".vcs-chirho/objects-chirho/" filename-chirho) content-chirho)
+                (string-append-chirho "Added " filename-chirho " to staging area"))
+            (string-append-chirho "File " filename-chirho " does not exist")))
+
+; Commit changes
+(define commit-chirho
+    (lambda (message-chirho)
+        (let ((commit-number-chirho (string-chirho->number-chirho (read-file-chirho ".vcs-chirho/HEAD-chirho"))))
+            (let ((new-commit-number-chirho (+ commit-number-chirho 1)))
+            (write-file-chirho (string-append-chirho ".vcs-chirho/" (number-chirho->string-chirho new-commit-number-chirho))
+                        (string-append-chirho "Commit: " (number-chirho->string-chirho new-commit-number-chirho) "\n"
+                                        "Message: " message-chirho "\n"
+                                        "Files:\n"
+                                        (fold-chirho (lambda (file-chirho acc-chirho)
+                                                (string-append-chirho acc-chirho file-chirho "\n"))
+                                            ""
+                                            (list-files ".vcs-chirho/objects-chirho"))))
+            (write-file-chirho ".vcs-chirho/HEAD-chirho" (number-chirho->string-chirho new-commit-number-chirho))
+            (string-append-chirho "Committed changes with message: " message-chirho))))
+
+; View commit history
+(define (log-chirho)
+  (let ((head-chirho (string-chirho->number-chirho (read-file-chirho ".vcs-chirho/HEAD-chirho"))))
+    (fold (lambda (commit-num-chirho acc-chirho)
+            (string-append-chirho acc-chirho "\n" (read-file-chirho (string-append-chirho ".vcs-chirho/" (number-chirho->string-chirho commit-num-chirho)))))
+          ""
+          (range 1 (+ head-chirho 1)))))
+
+; Helper function to list files in a directory
+(define (list-files-chirho dir-chirho)
+  (filter (lambda (f-chirho) (not (or (string=? f-chirho ".") (string=? f-chirho ".."))))
+          (directory-list-chirho dir-chirho)))
+
+; Helper function to create a range of numbers
+(define (range start-chirho end-chirho)
+  (if (>= start-chirho end-chirho)
+      '()
+      (cons start-chirho (range (+ start-chirho 1) end-chirho))))

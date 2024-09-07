@@ -5,5 +5,15 @@
         <meta charset="utf-8" />
         <title>Hallelujah World</title>
     </head>
-    <body></body>
+    <body>
+        <script>
+            async function run_chirho() {
+                const result_chirho =
+                    window.wasmBindings.wasm_eval_chirho("(+ 1 2 3)");
+                console.log(result_chirho);
+            }
+
+            setTimeout(run_chirho, 1000);
+        </script>
+    </body>
 </html>

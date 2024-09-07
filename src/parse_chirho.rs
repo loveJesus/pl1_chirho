@@ -5,8 +5,13 @@
 use crate::sexp_chirho::AtomChirho;
 use crate::sexp_chirho::SExpChirho;
 
-pub fn parse_chirho(input_chirho: &str) -> Result<SExpChirho, String> {
-    let input_chirho = input_chirho.trim();
+pub fn parse_chirho(fn_input_chirho: &str) -> Result<SExpChirho, String> {
+
+    let no_comment_input_chirho = remove_comments_chirho(fn_input_chirho);
+    let input_chirho = no_comment_input_chirho.trim();
+    if input_chirho.is_empty() {
+        return Err("Empty input".to_string());
+    }
     if input_chirho.starts_with('(') && input_chirho.ends_with(')') {
         let inner_chirho = &input_chirho[1..input_chirho.len() - 1];
         let mut elements_chirho = Vec::new();
@@ -40,20 +45,33 @@ pub fn parse_chirho(input_chirho: &str) -> Result<SExpChirho, String> {
         Ok(SExpChirho::ListChirho(elements_chirho))
     } else {
         // Parse atoms
-        if let Ok(num_chirho) = input_chirho.parse::<f64>() {
-            Ok(SExpChirho::AtomChirho(AtomChirho::NumberChirho(num_chirho)))
-        } else if input_chirho == "true" {
-            Ok(SExpChirho::AtomChirho(AtomChirho::BooleanChirho(true)))
-        } else if input_chirho == "false" {
-            Ok(SExpChirho::AtomChirho(AtomChirho::BooleanChirho(false)))
-        } else if input_chirho.starts_with('"') && input_chirho.ends_with('"') {
-            Ok(SExpChirho::AtomChirho(AtomChirho::StringChirho(
-                input_chirho[1..input_chirho.len() - 1].to_string(),
-            )))
-        } else {
-            Ok(SExpChirho::AtomChirho(AtomChirho::SymbolChirho(
-                input_chirho.to_string(),
-            )))
-        }
+        parse_atom_chirho(input_chirho)
     }
+}
+
+fn parse_atom_chirho(input_chirho: &str) -> Result<SExpChirho, String> {
+    if let Ok(num_chirho) = input_chirho.parse::<f64>() {
+        Ok(SExpChirho::AtomChirho(AtomChirho::NumberChirho(num_chirho)))
+    } else if input_chirho == "true" {
+        Ok(SExpChirho::AtomChirho(AtomChirho::BooleanChirho(true)))
+    } else if input_chirho == "false" {
+        Ok(SExpChirho::AtomChirho(AtomChirho::BooleanChirho(false)))
+    } else if input_chirho.starts_with('"') && input_chirho.ends_with('"') {
+        Ok(SExpChirho::AtomChirho(AtomChirho::StringChirho(input_chirho[1..input_chirho.len()-1].to_string())))
+    } else {
+        Ok(SExpChirho::AtomChirho(AtomChirho::SymbolChirho(input_chirho.to_string())))
+    }
+}
+
+fn remove_comments_chirho(input_chirho: &str) -> String {
+    input_chirho.lines()
+        .map(|line_chirho| {
+            if let Some(index_chirho) = line_chirho.find(';') {
+                &line_chirho[..index_chirho]
+            } else {
+                line_chirho
+            }
+        })
+        .collect::<Vec<&str>>()
+        .join("\n")
 }

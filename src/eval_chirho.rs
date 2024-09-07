@@ -27,6 +27,7 @@ pub fn eval_chirho(
                         "define" => eval_define_chirho(&list_chirho[1..], env_chirho),
                         "if" => eval_if_chirho(&list_chirho[1..], env_chirho),
                         "lambda" => eval_lambda_chirho(&list_chirho[1..], env_chirho),
+                        "begin" => eval_begin_chirho(&list_chirho[1..], env_chirho),
                         _ => eval_function_call_chirho(list_chirho, env_chirho),
                     }
                 }
@@ -34,6 +35,14 @@ pub fn eval_chirho(
             }
         }
     }
+}
+
+fn eval_begin_chirho(exps_chirho: &[SExpChirho], env_chirho: &mut EnvChirho) -> Result<SExpChirho, String> {
+    let mut result_chirho = Ok(SExpChirho::ListChirho(vec![]));
+    for exp_chirho in exps_chirho {
+        result_chirho = eval_chirho(exp_chirho, env_chirho);
+    }
+    result_chirho
 }
 
 fn eval_define_chirho(
@@ -57,7 +66,7 @@ fn eval_if_chirho(
     env_chirho: &mut EnvChirho,
 ) -> Result<SExpChirho, String> {
     if args_chirho.len() != 3 {
-        return Err("if requires exactly 3 arguments".to_string());
+        return Err(format!("if requires exactly 3 arguments, has {} {:?}", args_chirho.len(), args_chirho));
     }
     let condition_chirho = eval_chirho(&args_chirho[0], env_chirho)?;
     match condition_chirho {

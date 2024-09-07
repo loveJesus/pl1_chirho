@@ -1,8 +1,20 @@
+# For God so loved the world, that He gave His only begotten Son, that all who believe in Him should not perish but have everlasting life.
 [package]
 name = "programming_language1_chirho"
 version = "0.1.0"
 edition = "2021"
 
+# [lib]
+# crate-type = ["cdylib", "rlib"]
+
 [dependencies]
-console_error_panic_hook = "0.1.7"
+wasm-bindgen = "0.2"
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+rustyline = "9.1.2"
+atty = "0.2"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+web-sys = { version = "0.3", features = ["console"] }
 wasm-bindgen = "0.2.93"
+console_error_panic_hook = "0.1.7"
